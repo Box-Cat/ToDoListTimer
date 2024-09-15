@@ -23,14 +23,24 @@ const GoalTimer = ({ goal, onTimeUpdate, onDelete }) => {
 
   // 시간이 변경될 때 저장 및 업데이트
   useEffect(() => {
-    if (goal.timeSpent !== timeSpent) {
-      onTimeUpdate(goal.id, timeSpent); // App.js에 시간 업데이트
-    }
+    const saveTimeSpent = async () => {
+      try {
+        await AsyncStorage.setItem(
+          `goal_${goal.id}`,
+          JSON.stringify({ ...goal, timeSpent })
+        );
+      } catch (error) {
+        console.log('시간 저장 중 오류:', error);
+      }
+    };
 
-    if (timeSpent >= goal.targetTime * 3600) {
+    saveTimeSpent();
+
+    if (timeSpent >= goal.targetTimeHour * 3600 + goal.targetTimeMin * 60 + goal.targetTimeSec) {
       Alert.alert('축하합니다!', `${goal.activity} 목표를 달성했습니다!`);
       setTimerRunning(false); // 타이머 중지
     }
+    onTimeUpdate(goal.id, timeSpent); // App.js에 시간 업데이트
   }, [timeSpent]);
 
   const hours = Math.floor(timeSpent / 3600);
@@ -39,7 +49,7 @@ const GoalTimer = ({ goal, onTimeUpdate, onDelete }) => {
 
   return (
     <View style={styles.goalContainer}>
-      <Text style={styles.goalText}>{goal.activity} - 목표: {goal.targetTime}시간</Text>
+      <Text style={styles.goalText}>{goal.activity} - 목표: {goal.targetTimeHour}시간 {goal.targetTimeMin}분 {goal.targetTimeSec}초</Text>
       <Text style={styles.timeText}>
         기록된 시간: {hours}시간 {minutes}분 {seconds}초
       </Text>

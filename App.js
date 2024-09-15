@@ -6,7 +6,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const App = () => {
   const [activity, setActivity] = useState('');
-  const [targetTime, setTargetTime] = useState('');
+  const [targetTimeHour, setTargetTimeHour] = useState(0);
+  const [targetTimeMin, setTargetTimeMin] = useState(0);
+  const [targetTimeSec, setTargetTimeSec] = useState(0);
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
@@ -15,7 +17,7 @@ const App = () => {
 
   // 목표 추가 함수
   const addGoal = async () => {
-    if (activity.length === 0 || targetTime.length === 0) {
+    if (activity.length === 0 || targetTimeHour.length === 0 || targetTimeMin.length === 0 || targetTimeSec.length === 0) {
       Alert.alert('활동명과 목표 시간을 입력해주세요');
       return;
     }
@@ -23,7 +25,9 @@ const App = () => {
     const newGoal = {
       id: Math.random().toString(),
       activity: activity,
-      targetTime: parseInt(targetTime),
+      targetTimeHour: parseInt(targetTimeHour),
+      targetTimeMin: parseInt(targetTimeMin),
+      targetTimeSec: parseInt(targetTimeSec),
       timeSpent: 0,
       startDate: startDate.toLocaleDateString(),
       endDate: endDate.toLocaleDateString(),
@@ -39,7 +43,9 @@ const App = () => {
     }
 
     setActivity('');
-    setTargetTime('');
+    setTargetTimeHour(0);
+    setTargetTimeMin(0);
+    setTargetTimeSec(0);
     setStartDate(new Date());
     setEndDate(new Date());
   };
@@ -81,6 +87,13 @@ const App = () => {
     if (selectedDate) setEndDate(selectedDate);
   };
 
+  // 시간 범위 확인
+  const checkTimeRange = (value, max) => {
+    const numberValue = parseInt(value, 10);
+    if (isNaN(numberValue) || numberValue < 0) return 0;
+    return max ? (numberValue > max ? max : numberValue) : numberValue;
+  };
+
   // 앱을 실행할 때 목표 불러오기
   useEffect(() => {
     const loadGoals = async () => {
@@ -105,13 +118,31 @@ const App = () => {
         value={activity}
         onChangeText={setActivity}
       />
-      <TextInput
-        placeholder="목표 시간(시간 단위)"
-        style={styles.input}
-        value={targetTime}
-        onChangeText={setTargetTime}
-        keyboardType="numeric"
-      />
+      <View style={styles.inputContainer}>
+        <TextInput
+          placeholder="0"
+          style={styles.inputField}
+          value={targetTimeHour.toString()}
+          onChangeText={(hour) => setTargetTimeHour(checkTimeRange(hour))}
+          keyboardType="numeric"
+        />
+        <Text style={styles.colon}>:</Text>
+        <TextInput
+          placeholder="0"
+          style={styles.inputField}
+          value={targetTimeMin.toString()}
+          onChangeText={(min) => setTargetTimeMin(checkTimeRange(min, 59))}
+          keyboardType="numeric"
+        />
+        <Text style={styles.colon}>:</Text>
+        <TextInput
+          placeholder="0"
+          style={styles.inputField}
+          value={targetTimeSec.toString()}
+          onChangeText={(sec) => setTargetTimeSec(checkTimeRange(sec, 59))}
+          keyboardType="numeric"
+        />
+      </View>
 
       <Button title="시작 날짜 선택" onPress={() => setShowStartDatePicker(true)} />
       {showStartDatePicker && (
@@ -153,8 +184,25 @@ const styles = StyleSheet.create({
   input: {
     borderBottomWidth: 1,
     marginVertical: 10,
-    padding: 10,
+    paddingTop: 10,
     fontSize: 18,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 5,
+    borderBottomWidth: 1,
+    borderBottomColor: '#000', 
+  },
+  inputField: {
+    width: 50,
+    textAlign: 'center',
+    fontSize: 18,
+  },
+  colon: {
+    fontSize: 18,
+    marginHorizontal: 5,
   },
 });
 
