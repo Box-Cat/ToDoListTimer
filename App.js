@@ -37,7 +37,7 @@ const App = () => {
     setGoals(updatedGoals);
 
     try {
-      await AsyncStorage.setItem('goals', JSON.stringify(updatedGoals)); // 모든 목표를 한 번에 저장
+      await AsyncStorage.setItem('goals', JSON.stringify(updatedGoals));
     } catch (error) {
       console.log('목표 저장 중 오류:', error);
     }
@@ -58,7 +58,7 @@ const App = () => {
     setGoals(updatedGoals);
 
     try {
-      await AsyncStorage.setItem('goals', JSON.stringify(updatedGoals)); // 업데이트된 목표 저장
+      await AsyncStorage.setItem('goals', JSON.stringify(updatedGoals)); 
     } catch (error) {
       console.log('시간 업데이트 중 오류:', error);
     }
@@ -76,7 +76,6 @@ const App = () => {
     }
   };
 
-  // 날짜 선택 핸들러
   const onStartDateChange = (event, selectedDate) => {
     setShowStartDatePicker(Platform.OS === 'ios');
     if (selectedDate) setStartDate(selectedDate);
@@ -87,7 +86,7 @@ const App = () => {
     if (selectedDate) setEndDate(selectedDate);
   };
 
-  // 시간 범위 확인
+  // (1)분,초의 0~59 맞추기(max가 59) (2)016=>16으로 바꾸기
   const checkTimeRange = (value, max) => {
     const numberValue = parseInt(value, 10);
     if (isNaN(numberValue) || numberValue < 0) return 0;
@@ -164,7 +163,7 @@ const App = () => {
           <GoalTimer
             key={item.id}
             goal={item}
-            onTimeUpdate={updateGoalTime}
+            updateGoalTime={updateGoalTime}
             onDelete={deleteGoal}
           />
         )}

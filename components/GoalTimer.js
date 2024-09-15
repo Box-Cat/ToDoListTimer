@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Button, StyleSheet, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const GoalTimer = ({ goal, onTimeUpdate, onDelete }) => {
+const GoalTimer = ({ goal, updateGoalTime, onDelete }) => {
   const [timerRunning, setTimerRunning] = useState(false);
   const [timeSpent, setTimeSpent] = useState(goal.timeSpent || 0); // 저장된 시간이 없으면 기본값 0
 
@@ -13,7 +13,7 @@ const GoalTimer = ({ goal, onTimeUpdate, onDelete }) => {
     if (timerRunning) {
       interval = setInterval(() => {
         setTimeSpent((prev) => prev + 1);
-      }, 1000); // 1초마다 시간 증가
+      }, 1000); 
     } else if (!timerRunning && timeSpent !== 0) {
       clearInterval(interval); // 타이머 일시정지
     }
@@ -38,9 +38,9 @@ const GoalTimer = ({ goal, onTimeUpdate, onDelete }) => {
 
     if (timeSpent >= goal.targetTimeHour * 3600 + goal.targetTimeMin * 60 + goal.targetTimeSec) {
       Alert.alert('축하합니다!', `${goal.activity} 목표를 달성했습니다!`);
-      setTimerRunning(false); // 타이머 중지
+      setTimerRunning(false); 
     }
-    onTimeUpdate(goal.id, timeSpent); // App.js에 시간 업데이트
+    updateGoalTime(goal.id, timeSpent); // App.js에 시간 업데이트
   }, [timeSpent]);
 
   const hours = Math.floor(timeSpent / 3600);
