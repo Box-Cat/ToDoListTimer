@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
 
-const GoalTimer = ({ goal, onTimeUpdate }) => {
-  const [timerRunning, setTimerRunning] = useState(false);  // 타이머 동작 여부 상태
+const GoalTimer = ({ goal, onTimeUpdate, onDelete }) => {
+  const [timerRunning, setTimerRunning] = useState(false); 
   const [timeSpent, setTimeSpent] = useState(goal.timeSpent);  // 기록된 시간 상태
 
   useEffect(() => {
     let interval = null;
 
-    // 타이머 동작 중이면 1초마다 시간 증가
+    // 타이머 가동
     if (timerRunning) {
       interval = setInterval(() => {
         setTimeSpent((prev) => prev + 1);
-      }, 1000);  // 1초마다 실행 (원하는 시간 단위로 조정 가능)
+      }, 1000);  
     } else if (!timerRunning && timeSpent !== 0) {
       clearInterval(interval);  // 타이머 일시정지
     }
@@ -25,13 +25,29 @@ const GoalTimer = ({ goal, onTimeUpdate }) => {
     onTimeUpdate(goal.id, timeSpent);
   }, [timeSpent]);
 
+
+  const hours = Math.floor(timeSpent / 3600);
+  const minutes = Math.floor((timeSpent % 3600) / 60);
+  const seconds = timeSpent % 60;
+
   return (
     <View style={styles.goalContainer}>
       <Text style={styles.goalText}>{goal.activity} - 목표: {goal.targetTime}시간</Text>
-      <Text style={styles.timeText}>기록된 시간: {Math.floor(timeSpent / 3600)}시간 {Math.floor((timeSpent % 3600) / 60)}분</Text>
+      <Text style={styles.timeText}>
+        기록된 시간: {hours}시간 {minutes}분 {seconds}초
+      </Text>
+      <Text style={styles.dateText}>시작일: {goal.startDate}</Text>
+      <Text style={styles.dateText}>종료일: {goal.endDate}</Text>
+
       <Button
         title={timerRunning ? "일시정지" : "타이머 시작"}
         onPress={() => setTimerRunning(!timerRunning)}
+      />
+
+      <Button
+        title="삭제"
+        color="red"
+        onPress={() => onDelete(goal.id)}
       />
     </View>
   );
@@ -55,6 +71,10 @@ const styles = StyleSheet.create({
   },
   timeText: {
     fontSize: 16,
+    marginBottom: 10,
+  },
+  dateText: {
+    fontSize: 14,
     marginBottom: 10,
   },
 });

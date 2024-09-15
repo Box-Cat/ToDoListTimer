@@ -14,10 +14,8 @@ const App = () => {
 
   // 목표 추가 함수
   const addGoal = () => {
-    if (activity.length === 0 || targetTime.length === 0) return;
-
-    if (isNaN(targetTime)) {
-      Alert.alert("목표 시간에는 숫자로 입력해주세요");
+    if (activity.length === 0 || targetTime.length === 0) {
+      Alert.alert("활동명과 목표 시간을 입력해주세요");
       return;
     }
 
@@ -36,7 +34,6 @@ const App = () => {
     setEndDate(new Date());
   };
 
-  // 목표 시간 업데이트 함수
   const updateGoalTime = (id, newTime) => {
     setGoals((currentGoals) =>
       currentGoals.map((goal) =>
@@ -45,13 +42,15 @@ const App = () => {
     );
   };
 
-  // 시작 날짜 변경 핸들러
+  const deleteGoal = (id) => {
+    setGoals((currentGoals) => currentGoals.filter((goal) => goal.id !== id));
+  };
+
   const onStartDateChange = (event, selectedDate) => {
     setShowStartDatePicker(Platform.OS === 'ios');
     if (selectedDate) setStartDate(selectedDate);
   };
 
-  // 종료 날짜 변경 핸들러
   const onEndDateChange = (event, selectedDate) => {
     setShowEndDatePicker(Platform.OS === 'ios');
     if (selectedDate) setEndDate(selectedDate);
@@ -73,7 +72,6 @@ const App = () => {
         keyboardType="numeric"
       />
 
-      {/* 시작 날짜 선택 */}
       <Button title="시작 날짜 선택" onPress={() => setShowStartDatePicker(true)} />
       {showStartDatePicker && (
         <DateTimePicker
@@ -85,7 +83,6 @@ const App = () => {
       )}
       <Text>시작 날짜: {startDate.toLocaleDateString()}</Text>
 
-      {/* 종료 날짜 선택 */}
       <Button title="종료 날짜 선택" onPress={() => setShowEndDatePicker(true)} />
       {showEndDatePicker && (
         <DateTimePicker
@@ -97,16 +94,17 @@ const App = () => {
       )}
       <Text>종료 날짜: {endDate.toLocaleDateString()}</Text>
 
-      <Button title="목표 추가" onPress={addGoal} />
+      <Button title="목표 추가" onPress={addGoal} color="#841584"/>
 
       <FlatList
         data={goals}
         renderItem={({ item }) => (
-          <View>
-            <GoalTimer goal={item} onTimeUpdate={updateGoalTime} />
-            <Text>시작일: {item.startDate}</Text>
-            <Text>종료일: {item.endDate}</Text>
-          </View>
+          <GoalTimer
+            key={item.id}
+            goal={item}
+            onTimeUpdate={updateGoalTime}
+            onDelete={deleteGoal} 
+          />
         )}
         keyExtractor={(item) => item.id}
       />
