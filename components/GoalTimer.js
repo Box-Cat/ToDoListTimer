@@ -1,30 +1,37 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button, StyleSheet } from 'react-native';
+import { View, Text, Button, StyleSheet, Alert } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const GoalTimer = ({ goal, onTimeUpdate, onDelete }) => {
-  const [timerRunning, setTimerRunning] = useState(false); 
-  const [timeSpent, setTimeSpent] = useState(goal.timeSpent);  // 기록된 시간 상태
+  const [timerRunning, setTimerRunning] = useState(false);
+  const [timeSpent, setTimeSpent] = useState(goal.timeSpent || 0); // 저장된 시간이 없으면 기본값 0
 
+  // 타이머 가동
   useEffect(() => {
     let interval = null;
 
-    // 타이머 가동
     if (timerRunning) {
       interval = setInterval(() => {
         setTimeSpent((prev) => prev + 1);
-      }, 1000);  
+      }, 1000); // 1초마다 시간 증가
     } else if (!timerRunning && timeSpent !== 0) {
-      clearInterval(interval);  // 타이머 일시정지
+      clearInterval(interval); // 타이머 일시정지
     }
 
-    return () => clearInterval(interval);  // 컴포넌트가 언마운트되면 타이머 정리
+    return () => clearInterval(interval); // 컴포넌트가 언마운트되면 타이머 정리
   }, [timerRunning]);
 
-  // 시간이 변경될 때마다 App.js에 업데이트
+  // 시간이 변경될 때 저장 및 업데이트
   useEffect(() => {
-    onTimeUpdate(goal.id, timeSpent);
-  }, [timeSpent]);
+    if (goal.timeSpent !== timeSpent) {
+      onTimeUpdate(goal.id, timeSpent); // App.js에 시간 업데이트
+    }
 
+    if (timeSpent >= goal.targetTime * 3600) {
+      Alert.alert('축하합니다!', `${goal.activity} 목표를 달성했습니다!`);
+      setTimerRunning(false); // 타이머 중지
+    }
+  }, [timeSpent]);
 
   const hours = Math.floor(timeSpent / 3600);
   const minutes = Math.floor((timeSpent % 3600) / 60);
@@ -40,7 +47,7 @@ const GoalTimer = ({ goal, onTimeUpdate, onDelete }) => {
       <Text style={styles.dateText}>종료일: {goal.endDate}</Text>
 
       <Button
-        title={timerRunning ? "일시정지" : "타이머 시작"}
+        title={timerRunning ? '일시정지' : '타이머 시작'}
         onPress={() => setTimerRunning(!timerRunning)}
       />
 
